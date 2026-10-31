@@ -1,40 +1,34 @@
 # Driver Drowsiness Detection
 
-A real-time webcam prototype that estimates eye openness from MediaPipe face landmarks. It smooths the eye aspect ratio (EAR) across five frames and shows an alert when both eyes appear closed for a configurable duration. The webcam feed is processed locally and is not saved or transmitted.
+## Browser app
 
-## Setup
+Open the live browser demo at https://2025a1r165-svg.github.io/MDC-AI-PROJECT-/ after GitHub Pages is enabled. Press Start camera and allow camera access. Detection runs in your browser; the app does not record or send camera frames. Brief blinks stay green. The default drowsiness alert starts after 1.5 seconds of continuous eye closure.
 
-Use Python 3.10 or newer, then install the dependencies:
+## Python webcam app
 
-```bash
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-python -m pip install -r requirements.txt
-```
+Use Python 3.10 or newer. From this folder, create an environment and install dependencies:
+
+    python -m venv .venv
+    source .venv/bin/activate
+    python -m pip install -r requirements.txt
 
 Start the detector:
 
-```bash
-python driver_drowsiness_detection.py
-```
+    python driver_drowsiness_detection.py
 
-On first run, the script downloads Google's MediaPipe Face Landmarker task model to this directory. For an offline setup, download the model separately and pass its path with `--model-path`.
+The MediaPipe model downloads automatically if it is not present. For offline use, the repository includes face_landmarker.task. Press Q or Esc to close the camera window.
 
 ## Options
 
-```text
---camera N              Camera device index (default: 0)
---ear-threshold VALUE   Closed-eye EAR threshold (default: 0.21)
---closed-seconds VALUE  Seconds of closure before alert (default: 1.5)
---alarm-interval VALUE  Repeat alert interval in seconds (default: 1.5)
---model-path PATH       Existing Face Landmarker .task file
---no-mirror             Disable the mirrored preview
-```
-
-Press **Q** or **Esc** to close the camera window. Brief blinks keep the eye outlines green and do not show an alert. After the eyes remain closed continuously for the configured delay (1.5 seconds by default), the outlines and warning turn red and the sound alarm starts. The alarm repeats at the `--alarm-interval` (1.5 seconds by default). Adjust `--closed-seconds` to change the delay. If the detector misses closed eyes or reports false closures, adjust `--ear-threshold` for the camera, lighting, and driver position. Windows uses its system alert beep; macOS plays the Glass alert sound, with a terminal bell fallback. Other systems use the terminal bell.
+- --camera N: webcam device index (default 0)
+- --ear-threshold VALUE: closed-eye threshold (default 0.21)
+- --closed-seconds VALUE: closure duration before alert (default 1.5 seconds)
+- --alarm-interval VALUE: repeat alert interval (default 1.5 seconds)
+- --model-path PATH: choose a model file
+- --no-mirror: disable the mirrored camera preview
 
 ## How it works
 
-The app computes an EAR value from six landmarks around each eye. Lower values indicate a narrower eye opening. A five-frame median reduces flicker, and a monotonic timer checks how long the smoothed value stays below the threshold. The app uses MediaPipe Tasks' video mode for webcam frames.
+The app computes the eye aspect ratio from MediaPipe face landmarks and smooths values across five frames. A sustained closure triggers the visual and sound alert; brief blinks do not.
 
-This is a learning/demo project, not a certified driver monitoring or vehicle safety system. Lighting, glasses, camera placement, face angle, and individual differences can affect detection. It can miss drowsiness and can alert incorrectly; never rely on it as the sole safety measure while driving.
+This is a learning prototype, not a certified vehicle safety system. Lighting, glasses, camera placement, face angle, and individual differences can affect detection. It can miss drowsiness or alert incorrectly; never rely on it as the sole safety measure while driving.
